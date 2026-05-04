@@ -24,6 +24,7 @@
             color: #333;
             line-height: 1.6;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
 
         .container {
@@ -139,6 +140,10 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             position: relative;
             overflow: hidden;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .exam-set-card::before {
@@ -151,16 +156,6 @@
             background: linear-gradient(90deg, #0099FF, #0066CC);
             transform: scaleX(0);
             transition: transform 0.3s ease;
-        }
-
-        .exam-set-card:hover {
-            border-color: #0099FF;
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 153, 255, 0.15);
-        }
-
-        .exam-set-card:hover::before {
-            transform: scaleX(1);
         }
 
         .exam-set-card h3 {
@@ -281,13 +276,10 @@
             font-size: 1em;
             line-height: 1.5;
             position: relative;
-        }
-
-        .option:hover {
-            background: #edf2f7;
-            border-color: #0099FF;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 153, 255, 0.1);
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .option:active {
@@ -349,17 +341,16 @@
             position: relative;
             overflow: hidden;
             letter-spacing: 0.01em;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #0099FF 0%, #0066CC 100%);
             color: white;
             box-shadow: 0 4px 12px rgba(0, 153, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 153, 255, 0.4);
         }
 
         .btn-primary:active {
@@ -373,12 +364,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        .btn-secondary:hover {
-            background: #edf2f7;
-            border-color: #cbd5e0;
-            transform: translateY(-1px);
-        }
-
         .btn-secondary:active {
             transform: translateY(0);
             background: #e2e8f0;
@@ -390,11 +375,6 @@
             box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
         }
 
-        .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.4);
-        }
-
         .btn-info:active {
             transform: translateY(0);
             box-shadow: 0 4px 12px rgba(66, 153, 225, 0.35);
@@ -404,11 +384,6 @@
             background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
             color: white;
             box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
         }
 
         .btn-danger:active {
@@ -605,10 +580,7 @@
             text-decoration: none;
             overflow-wrap: anywhere;
             word-break: break-word;
-        }
-
-        .source-item a:hover {
-            text-decoration: underline;
+            touch-action: manipulation;
         }
 
         .audit-panel {
@@ -636,6 +608,7 @@
         .audit-section a {
             overflow-wrap: anywhere;
             word-break: break-word;
+            touch-action: manipulation;
         }
 
         .topic-coverage {
@@ -657,6 +630,67 @@
             gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .exam-set-card:hover {
+                border-color: #0099FF;
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0, 153, 255, 0.15);
+            }
+
+            .exam-set-card:hover::before {
+                transform: scaleX(1);
+            }
+
+            .option:hover {
+                background: #edf2f7;
+                border-color: #0099FF;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 153, 255, 0.1);
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 153, 255, 0.4);
+            }
+
+            .btn-secondary:hover {
+                background: #edf2f7;
+                border-color: #cbd5e0;
+                transform: translateY(-1px);
+            }
+
+            .btn-info:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(66, 153, 225, 0.4);
+            }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
+            }
+
+            .source-item a:hover {
+                text-decoration: underline;
+            }
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .exam-set-card:active {
+                border-color: #0099FF;
+                transform: scale(0.99);
+            }
+
+            .exam-set-card:active::before {
+                transform: scaleX(1);
+            }
+        }
+
+        .option:focus-visible,
+        .btn:focus-visible {
+            outline: 3px solid rgba(0, 153, 255, 0.55);
+            outline-offset: 2px;
         }
 
         @media (max-width: 768px) {

@@ -1,0 +1,45 @@
+# --- Sistema operacional ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --- Editores e IDEs ---
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs e temporários ---
+*.log
+*.tmp
+*.temp
+.cache/
+
+# --- Python (ex.: servidor local `python -m http.server`) ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# --- Node (caso adicione tooling no futuro) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Ambiente / segredos (nunca versionar) ---
+.env
+.env.*
+!.env.example
+*.pem

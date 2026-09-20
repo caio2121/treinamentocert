@@ -1,6 +1,6 @@
 # HCIA Storage — Simulador de prática
 
-Simulador web para treinar questões no estilo **HCIA-Storage**.
+Simulador web para treinar questões no estilo **HCIA-Storage** (banco atual: **362** questões embutidas).
 
 ## Acesse online (GitHub Pages)
 

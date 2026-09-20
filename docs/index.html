@@ -1749,7 +1749,7 @@ body.stream-active #globalFootnote {
             <select id="topicFilter" class="hidden" style="margin-top:6px"></select>
           </div>
         </div>
-        <p class="footnote">Parâmetros são configuráveis pelo usuário. Não representam duração ou nota oficial inventada.</p>
+        <p class="footnote">Configure quantidade, tempo e filtros do banco conforme sua sessão.</p>
       </details>
       <div class="field hidden">
         <label for="examMode">Modo</label>
@@ -1803,7 +1803,7 @@ body.stream-active #globalFootnote {
     <!-- STREAM SETUP (wrapper around existing stream fields) -->
     <section id="setup" class="setup-card hidden">
       <h2 id="setupHeading">Esteira de Perguntas</h2>
-      <p class="footnote" id="streamSetupLead">Treino contínuo com revisão automática de erros. Identidade própria — sem misturar com o simulado.</p>
+      <p class="footnote" id="streamSetupLead">Treino contínuo com revisão automática de erros.</p>
       <div id="examSetupFields" class="hidden"></div>
       <div id="streamSetupFields">
         <div id="streamResumeCard" class="stream-resume-card hidden">
@@ -2074,8 +2074,7 @@ body.stream-active #globalFootnote {
     </section>
 
     <p class="footnote" id="globalFootnote">
-      Banco reconstruído a partir de capturas nos PDFs do repositório (SOURCE OR NULL).
-      Respostas do ChatGPT são históricas e classificadas como chat_confirmed, não como documentação oficial.
+      Banco de prática com gabaritos históricos. Não substitui documentação oficial Huawei.
     </p>
   </div>
 
@@ -3134,7 +3133,7 @@ const StreamEngine = (() => {
           <div>Questão <strong>${(s.index || 0) + 1}</strong> de <strong>${s.questions.length}</strong></div>
           <div><strong>${answered}</strong> respondidas</div>
           <div><strong>${Object.values(s.studyConfirmed || {}).filter(Boolean).length}</strong> confirmadas</div>
-          <div>Modo pedagógico (sem cronômetro de prova)</div>
+          <div>Sem cronômetro de prova</div>
         `
           : `
           <div>Questão <strong>${(s.index || 0) + 1}</strong> de <strong>${s.questions.length}</strong></div>
@@ -3634,7 +3633,7 @@ const StreamEngine = (() => {
         <div class="big">${grade.pct}%</div>
         <div class="sub">${grade.correct} / ${grade.scored} corretas (com gabarito)</div>
       </div>
-      <p class="footnote">Modo estudo — feedback pedagógico, sem caráter de prova oficial.</p>
+      <p class="footnote">Sessão de estudo com feedback após cada resposta.</p>
     `;
   }
 

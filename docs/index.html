@@ -951,6 +951,21 @@ body.stream-active #globalFootnote {
   }
   .stream-cta-bar .stream-cta { min-height: 48px; }
 }
+.stream-review-badge[data-mastery="learning"] {
+  color: var(--muted);
+  border-color: #c5ced9;
+  background: #eef2f6;
+}
+.stream-review-badge[data-mastery="review"] {
+  color: var(--review);
+  border-color: var(--review-border);
+  background: var(--review-bg);
+}
+.stream-review-badge[data-mastery="mastered"] {
+  color: var(--ok);
+  border-color: #9dceb0;
+  background: #eef8f1;
+}
 
   </style>
 </head>
@@ -2540,7 +2555,15 @@ const StreamEngine = (() => {
       badge.classList.remove("hidden");
       badge.textContent = "REVISÃO · você errou anteriormente";
     } else {
-      badge.classList.add("hidden");
+      const mastery = StreamEngine.masteryOf(s, cur.questionId);
+      if (mastery && mastery !== "new") {
+        badge.classList.remove("hidden");
+        badge.textContent = StreamEngine.masteryLabel(mastery);
+        badge.dataset.mastery = mastery;
+      } else {
+        badge.classList.add("hidden");
+        delete badge.dataset.mastery;
+      }
     }
 
     $("streamQuestionText").textContent = q.question_original || "";

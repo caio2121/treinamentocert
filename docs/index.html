@@ -18,6 +18,13 @@
   --bad: #9b1c1c;
   --current: #1f4e79;
   --answered: #dbe7f3;
+  --review: #b45309;
+  --review-bg: #fff8ef;
+  --review-border: #e2b57a;
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(26, 35, 50, 0.06);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --stream-cta-h: 72px;
   --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -31,6 +38,7 @@ html, body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.45;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button, input, select { font: inherit; }
@@ -177,6 +185,39 @@ button { cursor: pointer; }
   background: #fff;
   border-color: var(--bad);
   color: var(--bad);
+}
+.btn-block {
+  width: 100%;
+  min-width: 0;
+  display: block;
+}
+.btn-cta {
+  min-height: 52px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  border-radius: 12px;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--accent);
+  min-width: 0;
+}
+.btn-ghost:hover { background: #eef3f8; }
+.btn-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  min-width: 0;
+  padding: 8px 4px;
+}
+.btn:focus-visible,
+.option:focus-within,
+.stream-overflow-btn:focus-visible,
+.sheet-item:focus-visible,
+.mode-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .side h3 {
@@ -332,125 +373,595 @@ button { cursor: pointer; }
   justify-content: flex-end;
 }
 
-/* Stream mode */
-.stream-layout {
-  display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 12px;
-  margin-top: 12px;
+/* ========== Esteira de Perguntas (mobile-first) ========== */
+.option.locked { pointer-events: none; }
+
+body.stream-active {
+  overflow: hidden;
+  height: 100dvh;
 }
-.stream-panel { min-width: 0; }
-.stream-qhead {
+body.stream-active .app-shell {
+  max-width: none;
+  padding: 0;
+  height: 100dvh;
   display: flex;
+  flex-direction: column;
+}
+body.stream-active #mainTopbar,
+body.stream-active #progressTrack,
+body.stream-active #globalFootnote {
+  display: none !important;
+}
+
+.stream-app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  background: var(--bg);
+  position: relative;
+}
+
+.stream-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 12px;
+  min-height: 48px;
+  padding: 8px 12px;
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.stream-brand {
+  font-weight: 650;
+  color: var(--accent);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.stream-top-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.stream-metric {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.stream-metric-streak { color: var(--text); }
+.stream-overflow-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.35rem;
+  line-height: 1;
+  border-radius: 10px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.stream-overflow-btn:hover { background: #eef3f8; }
+
+.stream-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 14px calc(var(--stream-cta-h) + 20px + var(--safe-bottom));
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.stream-qmeta {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 .stream-qnum {
   font-weight: 650;
   color: var(--accent);
-  margin-right: 8px;
+  font-size: 0.92rem;
 }
 .stream-review-badge {
-  display: inline-block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--mark);
-  border: 1px solid #e2b57a;
-  background: #fff8ef;
-  padding: 2px 8px;
-  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--review);
+  border: 1px solid var(--review-border);
+  background: var(--review-bg);
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
 }
-.stream-head-actions {
+.stream-pending-chip {
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: #eef2f6;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.stream-goal-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.stream-goal-bar.reached {
+  border-color: #9dceb0;
+  background: #f3faf5;
+}
+.stream-goal-label {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
-.stream-nav {
-  justify-content: flex-end;
+.stream-goal-track {
+  height: 8px;
+  background: #d5dde6;
+  border-radius: 999px;
+  overflow: hidden;
 }
-.stream-nav .btn {
-  min-width: 150px;
+.stream-goal-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 280ms ease;
 }
-.stream-meta {
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  font-variant-numeric: tabular-nums;
-  justify-content: flex-end;
+
+.stream-question-text {
+  font-size: 1.125rem;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: var(--text);
 }
-.stream-meta span { white-space: nowrap; }
-.stream-side-stats {
+
+.stream-multi-hint {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.stream-options {
+  gap: 10px;
+}
+.stream-options .option {
+  position: relative;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.stream-options .option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.stream-options .option .oid {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #eef2f6;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+}
+.stream-options .option .opt-text {
+  flex: 1;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  min-width: 0;
+  word-break: break-word;
+}
+.stream-options .option .opt-mark {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-size: 1rem;
+  opacity: 0;
+}
+.stream-options .option.selected {
+  border-color: var(--accent);
+  background: #f0f5fa;
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.stream-options .option.selected .oid {
+  background: var(--accent);
+  color: #fff;
+}
+.stream-options .option.correct-flag {
+  border-color: var(--ok);
+  background: #eef8f1;
+  box-shadow: 0 0 0 1px var(--ok);
+}
+.stream-options .option.correct-flag .oid {
+  background: var(--ok);
+  color: #fff;
+}
+.stream-options .option.correct-flag .opt-mark {
+  opacity: 1;
+  color: var(--ok);
+}
+.stream-options .option.wrong-flag {
+  border-color: var(--bad);
+  background: #fdf0f0;
+  box-shadow: 0 0 0 1px var(--bad);
+}
+.stream-options .option.wrong-flag .oid {
+  background: var(--bad);
+  color: #fff;
+}
+.stream-options .option.wrong-flag .opt-mark {
+  opacity: 1;
+  color: var(--bad);
+}
+.stream-options.multi .option::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  background: #fff;
+}
+.stream-options.multi .option.selected::after {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px #fff;
+}
+.stream-options.multi .option.locked::after { display: none; }
+
+.stream-feedback {
+  margin-top: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  animation: streamFadeIn 220ms ease;
+}
+.stream-feedback.ok {
+  border-color: #9dceb0;
+  background: #f3faf5;
+}
+.stream-feedback.bad {
+  border-color: #e2a8a8;
+  background: #fdf6f6;
+}
+.stream-feedback.recovered {
+  border-color: #7eb89a;
+  background: linear-gradient(180deg, #eefaf3 0%, #f3faf5 100%);
+}
+.stream-feedback .fb-title {
+  font-weight: 750;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+.stream-feedback.ok .fb-title,
+.stream-feedback.recovered .fb-title { color: var(--ok); }
+.stream-feedback.bad .fb-title { color: var(--bad); }
+.stream-feedback .fb-line {
   font-size: 0.9rem;
+  color: var(--text);
+  margin: 4px 0;
+}
+.stream-feedback .fb-muted { color: var(--muted); font-size: 0.85rem; }
+.stream-feedback .fb-review-note {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--review-bg);
+  color: var(--review);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.stream-feedback .fb-xp {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stream-feedback .fb-explain {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.stream-cta-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  padding: 10px 14px calc(10px + var(--safe-bottom));
+  background: linear-gradient(180deg, rgba(232, 236, 241, 0) 0%, var(--bg) 28%, var(--bg) 100%);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.stream-cta-bar .stream-cta {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 720px;
+  min-height: 54px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(31, 78, 121, 0.28);
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 35, 50, 0.45);
+  z-index: 60;
+}
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  background: var(--surface);
+  border-radius: 18px 18px 0 0;
+  padding: 8px 12px calc(16px + var(--safe-bottom));
+  max-height: min(85dvh, 560px);
+  overflow-y: auto;
+  box-shadow: 0 -8px 28px rgba(26, 35, 50, 0.18);
+  animation: sheetUp 220ms ease;
+}
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: #cfd6de;
+  margin: 4px auto 12px;
+}
+.sheet-title {
+  margin: 0 8px 12px;
+  color: var(--accent);
+  font-size: 1.05rem;
+}
+.sheet-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 14px 12px;
+  min-height: 48px;
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.98rem;
+}
+.sheet-item:hover { background: #f3f6f9; }
+.sheet-item-danger { color: var(--bad); font-weight: 650; }
+.sheet-item-muted { color: var(--muted); }
+.sheet-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 8px;
+}
+
+.stream-side-stats {
+  font-size: 0.92rem;
   color: var(--muted);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  margin: 0 4px 14px;
 }
 .stream-side-stats .row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 6px;
+  padding: 10px 4px;
 }
-.stream-side-stats .row strong { color: var(--text); }
+.stream-side-stats .row strong { color: var(--text); font-variant-numeric: tabular-nums; }
 
-.option.locked { pointer-events: none; opacity: 0.95; }
+.stream-resume-card {
+  background: #f0f5fa;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+.stream-resume-title {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+.stream-resume-stats {
+  display: grid;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.stream-resume-stats strong { color: var(--text); }
+.stream-setup-hint {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.stream-setup-note {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.stream-check-row {
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+}
+.check-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fafbfc;
+}
+.stream-setup-footer {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.stream-toast-host {
+  position: relative;
+  min-height: 0;
+}
+.stream-toast {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-align: center;
+  animation: streamFadeIn 200ms ease;
+}
+.stream-toast.streak { background: #163a5c; }
+.stream-toast.goal { background: var(--ok); }
+
+@keyframes streamFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes sheetUp {
+  from { transform: translateY(24px); opacity: 0.6; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes streakPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.stream-metric-streak.pulse {
+  animation: streakPulse 420ms ease;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-feedback,
+  .sheet,
+  .stream-toast,
+  .stream-goal-fill,
+  .stream-options .option,
+  .stream-metric-streak.pulse {
+    animation: none !important;
+    transition: none !important;
+  }
+}
 
 @media (max-width: 860px) {
   .mode-cards { grid-template-columns: 1fr; }
-  .stream-layout { grid-template-columns: 1fr; }
-  .stream-side { display: none; }
   .topbar {
     flex-direction: column;
     align-items: flex-start;
   }
-  .stream-meta {
-    width: 100%;
-    justify-content: flex-start;
-    font-size: 0.85rem;
-  }
-  .nav-bar {
-    flex-wrap: wrap;
-  }
-  .nav-actions {
-    width: 100%;
-  }
-  .nav-actions .btn,
-  .stream-nav .btn {
+  .nav-bar { flex-wrap: wrap; }
+  .nav-actions { width: 100%; }
+  .nav-actions .btn {
     flex: 1 1 auto;
     min-width: 0;
   }
-  .stream-qhead {
-    flex-direction: column;
-  }
-  .stream-head-actions {
+}
+
+@media (min-width: 861px) {
+  .stream-topbar {
+    max-width: 720px;
     width: 100%;
+    margin: 0 auto;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
   }
-  .stream-head-actions .btn {
-    flex: 1 1 auto;
-    min-width: 0;
+  .stream-scroll { padding-top: 18px; }
+  .stream-question-text { font-size: 1.15rem; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .stream-topbar {
+    min-height: 40px;
+    padding: 4px 10px;
   }
+  .stream-overflow-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .stream-scroll {
+    padding-top: 8px;
+    padding-bottom: calc(var(--stream-cta-h) + 8px + var(--safe-bottom));
+  }
+  .stream-question-text {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .stream-options .option {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+  .stream-cta-bar .stream-cta { min-height: 48px; }
 }
 
   </style>
 </head>
 <body>
 
-  <div class="app-shell">
-    <header class="topbar">
-      <h1 id="appTitle">HCIA Storage Practice Exam</h1>
+  <div class="app-shell" id="appShell">
+    <header class="topbar" id="mainTopbar">
+      <h1 id="appTitle">HCIA Storage</h1>
       <div class="meta-row" id="topMeta">
         <span id="qPos">—</span>
         <span class="timer" id="timer">—</span>
-      </div>
-      <div class="meta-row stream-meta hidden" id="streamTopMeta">
-        <span id="streamAcc">Precisão —</span>
-        <span id="streamAnswered">Respondidas 0</span>
-        <span id="streamOk">✓ 0</span>
-        <span id="streamBad">✕ 0</span>
       </div>
     </header>
     <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
@@ -459,16 +970,16 @@ button { cursor: pointer; }
       <h2>Modalidade</h2>
       <div class="mode-cards" id="modeCards">
         <button type="button" class="mode-card selected" data-mode="exam" id="modeExam">
-          <strong>Exam Mode</strong>
+          <strong>Simulado</strong>
           <span>Simulação tradicional com início e fim.</span>
         </button>
         <button type="button" class="mode-card" data-mode="study" id="modeStudy">
-          <strong>Study Mode</strong>
+          <strong>Modo estudo</strong>
           <span>Estudo questão por questão com feedback.</span>
         </button>
         <button type="button" class="mode-card" data-mode="question_stream" id="modeStream">
           <strong>Esteira de Perguntas</strong>
-          <span>Responda continuamente e acompanhe sua precisão. Questões erradas retornam posteriormente para reforço.</span>
+          <span>Treino contínuo com revisão automática de erros.</span>
         </button>
       </div>
 
@@ -503,8 +1014,8 @@ button { cursor: pointer; }
           <div class="field hidden">
             <label for="examMode">Modo</label>
             <select id="examMode">
-              <option value="exam" selected>Exam mode</option>
-              <option value="study">Study mode</option>
+              <option value="exam" selected>Simulado</option>
+              <option value="study">Modo estudo</option>
             </select>
           </div>
           <div class="field">
@@ -539,11 +1050,21 @@ button { cursor: pointer; }
       </div>
 
       <div id="streamSetupFields" class="hidden">
-        <div class="form-grid">
+        <div id="streamResumeCard" class="stream-resume-card hidden">
+          <div class="stream-resume-title">Continuar esteira</div>
+          <div class="stream-resume-stats" id="streamResumeStats"></div>
+          <button type="button" class="btn btn-primary btn-block" id="resumeStreamBtn">Continuar</button>
+          <button type="button" class="btn btn-ghost btn-block" id="startStreamBtnAlt">Iniciar nova</button>
+        </div>
+
+        <div id="streamNewSetup">
+          <p class="stream-setup-hint" id="streamPoolHint">— questões disponíveis</p>
+          <p class="stream-setup-note">Ordem aleatória · esteira contínua</p>
+
           <div class="field">
             <label for="streamFilterMode">Banco</label>
             <select id="streamFilterMode">
-              <option value="scored" selected>Questões elegíveis (com gabarito)</option>
+              <option value="scored" selected>Questões com gabarito</option>
               <option value="verified">Somente verificadas (chat/oficial/feedback)</option>
               <option value="no_conflict">Excluir conflitos</option>
               <option value="topic">Por tópico</option>
@@ -551,21 +1072,29 @@ button { cursor: pointer; }
             </select>
             <select id="streamTopicFilter" class="hidden" style="margin-top:6px"></select>
           </div>
+
+          <div class="check-row stream-check-row">
+            <label class="check-card"><input type="checkbox" id="streamRandOpt" checked /> Alternativas aleatórias</label>
+            <label class="check-card"><input type="checkbox" id="streamReview" checked /> Revisar erros automaticamente</label>
+          </div>
+
           <div class="field">
-            <label>Ordem</label>
-            <input type="text" value="Aleatória (esteira contínua)" disabled />
+            <label for="streamGoal">Meta da sessão</label>
+            <select id="streamGoal">
+              <option value="10">10 questões</option>
+              <option value="20" selected>20 questões</option>
+              <option value="30">30 questões</option>
+              <option value="50">50 questões</option>
+              <option value="none">Sem meta</option>
+            </select>
           </div>
+
+          <button type="button" class="btn btn-primary btn-block btn-cta" id="startStreamBtn">Começar esteira</button>
+          <button type="button" class="btn btn-ghost btn-block hidden" id="resumeStreamBtnSecondary">Continuar sessão existente</button>
         </div>
-        <div class="check-row">
-          <label><input type="checkbox" id="streamRandOpt" checked /> Randomizar alternativas</label>
-          <label><input type="checkbox" id="streamReview" checked /> Repetição de erros (revisão)</label>
-        </div>
-        <div class="nav-bar">
-          <button type="button" class="btn" id="clearHistBtn2">Limpar histórico</button>
-          <div class="nav-actions">
-            <button type="button" class="btn" id="resumeStreamBtn">Continuar esteira</button>
-            <button type="button" class="btn btn-primary" id="startStreamBtn">Nova esteira</button>
-          </div>
+
+        <div class="stream-setup-footer">
+          <button type="button" class="btn btn-text" id="clearHistBtn2">Limpar histórico</button>
         </div>
       </div>
     </section>
@@ -573,16 +1102,16 @@ button { cursor: pointer; }
     <section id="exam" class="layout hidden">
       <div class="panel">
         <div class="question-tools">
-          <label class="mark-label"><input type="checkbox" id="markReview" /> Mark for Review</label>
-          <button type="button" class="btn btn-danger" id="finishBtn">End / Review</button>
+          <label class="mark-label"><input type="checkbox" id="markReview" /> Marcar para revisão</label>
+          <button type="button" class="btn btn-danger" id="finishBtn">Encerrar / Revisar</button>
         </div>
         <div class="question-media" id="questionMedia"></div>
         <p class="question-text" id="questionText"></p>
         <div class="options" id="options"></div>
         <div id="studyFeedback" class="study-box hidden"></div>
         <div class="nav-bar">
-          <button type="button" class="btn" id="prevBtn">Previous</button>
-          <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+          <button type="button" class="btn" id="prevBtn">Anterior</button>
+          <button type="button" class="btn btn-primary" id="nextBtn">Próxima</button>
         </div>
       </div>
       <aside class="panel side">
@@ -596,31 +1125,67 @@ button { cursor: pointer; }
       </aside>
     </section>
 
-    <section id="stream" class="stream-layout hidden">
-      <div class="panel stream-panel">
-        <div class="stream-qhead">
-          <div>
-            <span class="stream-qnum" id="streamQNum">Questão 1</span>
-            <span class="stream-review-badge hidden" id="streamReviewBadge">Revisão</span>
+    <!-- ESTEIRA: experiência mobile-first -->
+    <section id="stream" class="stream-app hidden">
+      <header class="stream-topbar" id="streamTopbar">
+        <div class="stream-brand">HCIA Storage</div>
+        <div class="stream-top-metrics">
+          <span id="streamAcc" class="stream-metric" title="Precisão">—%</span>
+          <span id="streamStreak" class="stream-metric stream-metric-streak" title="Sequência">Seq. 0</span>
+          <button type="button" class="stream-overflow-btn" id="streamMenuBtn" aria-label="Menu da sessão" aria-haspopup="true" aria-expanded="false">⋮</button>
+        </div>
+      </header>
+
+      <div class="stream-scroll" id="streamScroll">
+        <div class="stream-qmeta">
+          <span class="stream-qnum" id="streamQNum">Questão 1</span>
+          <span class="stream-review-badge hidden" id="streamReviewBadge">Revisão</span>
+          <span class="stream-pending-chip hidden" id="streamPendingChip"></span>
+        </div>
+
+        <div class="stream-goal-bar hidden" id="streamGoalBar">
+          <div class="stream-goal-label">
+            <span>Meta da sessão</span>
+            <span id="streamGoalText">0 / 20</span>
           </div>
-          <div class="stream-head-actions">
-            <button type="button" class="btn" id="streamMenuBtn">Menu</button>
-            <button type="button" class="btn btn-danger" id="streamEndBtn">Encerrar sessão</button>
+          <div class="stream-goal-track" aria-hidden="true">
+            <div class="stream-goal-fill" id="streamGoalFill"></div>
           </div>
         </div>
+
         <div class="question-media" id="streamMedia"></div>
-        <p class="question-text" id="streamQuestionText"></p>
-        <div class="options" id="streamOptions"></div>
-        <div id="streamFeedback" class="study-box hidden"></div>
-        <div class="nav-bar stream-nav">
-          <button type="button" class="btn btn-primary" id="streamConfirmBtn">Confirmar resposta</button>
-          <button type="button" class="btn btn-primary hidden" id="streamNextBtn">Próxima questão</button>
-        </div>
+        <p class="question-text stream-question-text" id="streamQuestionText"></p>
+        <p class="stream-multi-hint hidden" id="streamMultiHint">Selecione todas as alternativas corretas</p>
+        <div class="options stream-options" id="streamOptions"></div>
+        <div id="streamFeedback" class="stream-feedback hidden"></div>
+        <div id="streamToastHost" class="stream-toast-host" aria-live="polite"></div>
       </div>
-      <aside class="panel side stream-side">
-        <h3>Sessão</h3>
+
+      <footer class="stream-cta-bar" id="streamCtaBar">
+        <button type="button" class="btn btn-primary stream-cta" id="streamConfirmBtn" disabled>Confirmar resposta</button>
+        <button type="button" class="btn btn-primary stream-cta hidden" id="streamNextBtn">Próxima →</button>
+      </footer>
+
+      <!-- Overflow menu -->
+      <div class="sheet-backdrop hidden" id="streamMenuBackdrop"></div>
+      <div class="sheet stream-menu-sheet hidden" id="streamMenuSheet" role="dialog" aria-label="Menu da esteira">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <button type="button" class="sheet-item" id="streamStatsBtn">Estatísticas da sessão</button>
+        <button type="button" class="sheet-item" id="streamContinueLaterBtn">Continuar depois</button>
+        <button type="button" class="sheet-item" id="streamSettingsHintBtn">Configurações</button>
+        <div class="sheet-sep"></div>
+        <button type="button" class="sheet-item sheet-item-danger" id="streamEndBtn">Encerrar sessão</button>
+        <button type="button" class="sheet-item sheet-item-muted" id="streamMenuCloseBtn">Fechar</button>
+      </div>
+
+      <!-- Stats sheet -->
+      <div class="sheet-backdrop hidden" id="streamStatsBackdrop"></div>
+      <div class="sheet stream-stats-sheet hidden" id="streamStatsSheet" role="dialog" aria-label="Estatísticas">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <h3 class="sheet-title">Estatísticas da sessão</h3>
         <div class="stream-side-stats" id="streamSideStats"></div>
-      </aside>
+        <button type="button" class="btn btn-block" id="streamStatsCloseBtn">Fechar</button>
+      </div>
     </section>
 
     <section id="streamSummary" class="results-card hidden">
@@ -646,7 +1211,7 @@ button { cursor: pointer; }
       </div>
     </section>
 
-    <p class="footnote">
+    <p class="footnote" id="globalFootnote">
       Banco reconstruído a partir de capturas nos PDFs do repositório (SOURCE OR NULL).
       Respostas do ChatGPT são históricas e classificadas como chat_confirmed, não como documentação oficial.
     </p>
@@ -863,6 +1428,9 @@ const ExamEngine = (() => {
 const StreamEngine = (() => {
   const REVIEW_DISTANCE = 10;
   const MODE_ID = "question_stream";
+  const STREAK_BONUSES = { 5: 10, 10: 25, 20: 50, 50: 100 };
+  const VOLUME_BONUSES = { 25: 20, 50: 40 };
+  const MASTERY_STREAK = 3;
 
   function calculateAccuracy(totalAnswers, correctAnswers) {
     if (!totalAnswers) return 0;
@@ -876,6 +1444,11 @@ const StreamEngine = (() => {
 
   function createSession(eligibleQuestions, config) {
     const poolIds = ExamEngine.shuffle(eligibleQuestions.map((q) => q.id));
+    const goalRaw = config.sessionGoal;
+    const sessionGoal =
+      goalRaw === null || goalRaw === "none" || goalRaw === undefined
+        ? null
+        : Math.max(0, Number(goalRaw) || 0) || null;
     return {
       mode: MODE_ID,
       active: true,
@@ -886,6 +1459,7 @@ const StreamEngine = (() => {
         randomizeOptions: !!config.randomizeOptions,
         reviewEnabled: config.reviewEnabled !== false,
         reviewDistance: REVIEW_DISTANCE,
+        sessionGoal,
       },
       poolIds,
       poolIndex: 0,
@@ -896,6 +1470,11 @@ const StreamEngine = (() => {
       uniqueQuestionsSeen: {},
       reviewsCompleted: 0,
       currentStreak: 0,
+      bestStreak: 0,
+      xp: 0,
+      xpAwarded: { streaks: {}, volume: {} },
+      sessionGoal,
+      goalReached: false,
       lastQuestionId: null,
       recentIds: [],
       current: null,
@@ -903,6 +1482,39 @@ const StreamEngine = (() => {
       startedAt: Date.now(),
       updatedAt: Date.now(),
     };
+  }
+
+  /** Normaliza sessões antigas do localStorage (retrocompatível). */
+  function normalizeSession(session) {
+    if (!session || typeof session !== "object") return session;
+    session.bestStreak = session.bestStreak || 0;
+    session.xp = session.xp || 0;
+    session.xpAwarded = session.xpAwarded || { streaks: {}, volume: {} };
+    if (!session.xpAwarded.streaks) session.xpAwarded.streaks = {};
+    if (!session.xpAwarded.volume) session.xpAwarded.volume = {};
+    if (session.sessionGoal === undefined) {
+      session.sessionGoal =
+        session.config?.sessionGoal !== undefined ? session.config.sessionGoal : 20;
+    }
+    if (session.config && session.config.sessionGoal === undefined) {
+      session.config.sessionGoal = session.sessionGoal;
+    }
+    session.goalReached = !!session.goalReached;
+    if (session.bestStreak < (session.currentStreak || 0)) {
+      session.bestStreak = session.currentStreak || 0;
+    }
+    session.questionStats = session.questionStats || {};
+    for (const st of Object.values(session.questionStats)) {
+      if (st.correctStreakAfterError === undefined) {
+        st.correctStreakAfterError =
+          st.lastResult === "correct" && (st.incorrect || 0) > 0
+            ? Math.min(MASTERY_STREAK, st.correct || 0)
+            : st.lastResult === "correct" && !(st.incorrect || 0)
+              ? Math.min(MASTERY_STREAK, st.correct || 0)
+              : 0;
+      }
+    }
+    return session;
   }
 
   function accuracyOf(session) {
@@ -915,6 +1527,75 @@ const StreamEngine = (() => {
 
   function uniqueCount(session) {
     return Object.keys(session.uniqueQuestionsSeen || {}).length;
+  }
+
+  function goalProgress(session) {
+    const goal = session.sessionGoal;
+    if (!goal || goal <= 0) return null;
+    const current = session.totalAnswers || 0;
+    return {
+      goal,
+      current,
+      pct: Math.min(100, Math.round((current / goal) * 100)),
+      reached: current >= goal || !!session.goalReached,
+    };
+  }
+
+  /**
+   * Domínio derivado de questionStats (não altera o banco).
+   * Novo | learning | review | mastered
+   */
+  function masteryOf(session, questionId) {
+    const st = session?.questionStats?.[questionId];
+    if (!st || !st.attempts) return "new";
+    if ((st.correctStreakAfterError || 0) >= MASTERY_STREAK) return "mastered";
+    if ((st.incorrect || 0) > 0 && st.lastResult === "correct") return "review";
+    if (st.lastResult === "incorrect" || (st.incorrect || 0) > 0) return "learning";
+    if ((st.correct || 0) >= MASTERY_STREAK) return "mastered";
+    return "learning";
+  }
+
+  function masteryLabel(key) {
+    return (
+      {
+        new: "Novo",
+        learning: "Em aprendizado",
+        review: "Revisão",
+        mastered: "Dominado",
+      }[key] || key
+    );
+  }
+
+  function awardXp(session, amount, reason) {
+    if (!amount) return null;
+    session.xp = (session.xp || 0) + amount;
+    return { amount, reason };
+  }
+
+  function applyXpRewards(session, { ok, wasReview }) {
+    const gains = [];
+    if (ok) {
+      if (wasReview) {
+        const g = awardXp(session, 15, "review_recovered");
+        if (g) gains.push(g);
+      } else {
+        const g = awardXp(session, 10, "correct");
+        if (g) gains.push(g);
+      }
+      const streak = session.currentStreak || 0;
+      if (STREAK_BONUSES[streak] && !session.xpAwarded.streaks[streak]) {
+        session.xpAwarded.streaks[streak] = true;
+        const g = awardXp(session, STREAK_BONUSES[streak], `streak_${streak}`);
+        if (g) gains.push(g);
+      }
+    }
+    const total = session.totalAnswers || 0;
+    if (VOLUME_BONUSES[total] && !session.xpAwarded.volume[total]) {
+      session.xpAwarded.volume[total] = true;
+      const g = awardXp(session, VOLUME_BONUSES[total], `volume_${total}`);
+      if (g) gains.push(g);
+    }
+    return gains;
   }
 
   function reshufflePool(session) {
@@ -990,6 +1671,7 @@ const StreamEngine = (() => {
 
   function advanceToNextQuestion(session, allQuestions) {
     if (!session || session.ended) return null;
+    normalizeSession(session);
     const attemptNumber = session.totalAnswers + 1;
     let chosenId = null;
     let isReview = false;
@@ -1049,7 +1731,11 @@ const StreamEngine = (() => {
         reviewFailures: 0,
         lastSeen: null,
         nextReview: null,
+        correctStreakAfterError: 0,
       };
+    }
+    if (session.questionStats[id].correctStreakAfterError === undefined) {
+      session.questionStats[id].correctStreakAfterError = 0;
     }
     return session.questionStats[id];
   }
@@ -1057,10 +1743,12 @@ const StreamEngine = (() => {
   function submitStreamAnswer(session, selectedAnswers) {
     if (!session?.current) return { error: "no_current" };
     if (session.current.answered) return { error: "already_answered" };
+    normalizeSession(session);
 
     const selected = [...(selectedAnswers || [])].map(String);
     const q = session.current.prepared;
     const ok = ExamEngine.sameSet(selected, q.correct_answers || []);
+    const wasReview = !!session.current.isReview;
 
     session.current.selected = selected;
     session.current.answered = true;
@@ -1070,6 +1758,9 @@ const StreamEngine = (() => {
     if (ok) {
       session.correctAnswers += 1;
       session.currentStreak += 1;
+      if (session.currentStreak > (session.bestStreak || 0)) {
+        session.bestStreak = session.currentStreak;
+      }
     } else {
       session.incorrectAnswers += 1;
       session.currentStreak = 0;
@@ -1087,6 +1778,15 @@ const StreamEngine = (() => {
     st.lastResult = ok ? "correct" : "incorrect";
     st.lastSeen = new Date().toISOString();
 
+    if (ok) {
+      st.correctStreakAfterError = (st.correctStreakAfterError || 0) + 1;
+    } else {
+      st.correctStreakAfterError = 0;
+    }
+
+    let scheduledReview = false;
+    let reviewRecovered = false;
+
     if (session.current.isReview) {
       session.reviewQueue = (session.reviewQueue || []).filter(
         (r) => r.uid !== session.current.reviewUid
@@ -1094,16 +1794,32 @@ const StreamEngine = (() => {
       if (ok) {
         session.reviewsCompleted += 1;
         st.nextReview = null;
+        reviewRecovered = true;
       } else if (session.config.reviewEnabled) {
         st.reviewFailures += 1;
         const entry = scheduleReview(session, id, st.reviewFailures);
         st.nextReview = entry.dueAtAttempt;
+        scheduledReview = true;
       }
     } else if (!ok && session.config.reviewEnabled) {
       st.reviewFailures += 1;
       const entry = scheduleReview(session, id, st.reviewFailures);
       st.nextReview = entry.dueAtAttempt;
+      scheduledReview = true;
     }
+
+    const xpGains = applyXpRewards(session, { ok, wasReview: reviewRecovered });
+    const xpGained = xpGains.reduce((sum, g) => sum + g.amount, 0);
+
+    let goalJustReached = false;
+    const goal = session.sessionGoal;
+    if (goal && goal > 0 && !session.goalReached && session.totalAnswers >= goal) {
+      session.goalReached = true;
+      goalJustReached = true;
+    }
+
+    const streakMilestone =
+      ok && STREAK_BONUSES[session.currentStreak] ? session.currentStreak : null;
 
     session.updatedAt = Date.now();
     return {
@@ -1112,13 +1828,25 @@ const StreamEngine = (() => {
       correctAnswers: [...(q.correct_answers || [])],
       accuracy: accuracyOf(session),
       question: q,
-      isReview: !!session.current.isReview,
+      isReview: wasReview,
+      reviewRecovered,
+      scheduledReview,
       attemptNumber: session.current.attemptNumber,
+      xpGained,
+      xpGains,
+      xpTotal: session.xp || 0,
+      currentStreak: session.currentStreak || 0,
+      bestStreak: session.bestStreak || 0,
+      streakMilestone,
+      goalJustReached,
+      mastery: masteryOf(session, id),
+      pendingReviews: pendingReviews(session),
     };
   }
 
   function endSession(session) {
     if (!session) return null;
+    normalizeSession(session);
     session.active = false;
     session.ended = true;
     session.updatedAt = Date.now();
@@ -1132,6 +1860,10 @@ const StreamEngine = (() => {
       reviewsCompleted: session.reviewsCompleted || 0,
       reviewsPending: pendingReviews(session),
       currentStreak: session.currentStreak || 0,
+      bestStreak: session.bestStreak || 0,
+      xp: session.xp || 0,
+      sessionGoal: session.sessionGoal,
+      goalReached: !!session.goalReached,
       startedAt: session.startedAt,
       endedAt: session.updatedAt,
       questionStats: session.questionStats,
@@ -1140,6 +1872,7 @@ const StreamEngine = (() => {
 
   function restoreCurrent(session, allQuestions) {
     if (!session?.current?.questionId) return null;
+    normalizeSession(session);
     // Reanexa prepared se necessário (F5 com snapshot completo já traz prepared).
     if (!session.current.prepared) {
       const raw = getQuestionById(allQuestions, session.current.questionId);
@@ -1168,12 +1901,17 @@ const StreamEngine = (() => {
   return {
     REVIEW_DISTANCE,
     MODE_ID,
+    STREAK_BONUSES,
     createSession,
+    normalizeSession,
     calculateAccuracy,
     formatAccuracy,
     accuracyOf,
     pendingReviews,
     uniqueCount,
+    goalProgress,
+    masteryOf,
+    masteryLabel,
     advanceToNextQuestion,
     scheduleReview,
     submitStreamAnswer,
@@ -1202,6 +1940,7 @@ const StreamEngine = (() => {
     finished: false,
     stream: null,
     streamSelected: [],
+    lastStreamResult: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -1237,9 +1976,23 @@ const StreamEngine = (() => {
   function fillSetup() {
     fillTopicSelect($("topicFilter"));
     fillTopicSelect($("streamTopicFilter"));
+    const scored = state.all.filter((q) => q.quality?.answer_known).length;
     $("poolStats").textContent =
       `${state.all.length} questões completas no catálogo · ` +
-      `${state.all.filter((q) => q.quality?.answer_known).length} com gabarito histórico/chat_confirmed`;
+      `${scored} com gabarito histórico/chat_confirmed`;
+    updateStreamPoolHint();
+  }
+
+  function updateStreamPoolHint() {
+    const hint = $("streamPoolHint");
+    if (!hint) return;
+    try {
+      const cfg = readStreamConfig();
+      const n = filterStreamPool(cfg).length;
+      hint.textContent = `${n} questões disponíveis`;
+    } catch {
+      hint.textContent = "— questões disponíveis";
+    }
   }
 
   function setUiMode(mode) {
@@ -1251,13 +2004,14 @@ const StreamEngine = (() => {
     $("examSetupFields").classList.toggle("hidden", isStream);
     $("streamSetupFields").classList.toggle("hidden", !isStream);
     $("setupHeading").textContent = isStream
-      ? "Configuração da Esteira"
+      ? "Esteira de Perguntas"
       : "Configuração da prova";
     if (!isStream) {
       $("examMode").value = mode === "study" ? "study" : "exam";
       $("passPctField").classList.toggle("hidden", mode === "study");
     }
     refreshResumeButtons();
+    if (isStream) updateStreamPoolHint();
   }
 
   function readConfig() {
@@ -1279,28 +2033,36 @@ const StreamEngine = (() => {
   }
 
   function readStreamConfig() {
+    const goalVal = $("streamGoal")?.value ?? "20";
+    const sessionGoal = goalVal === "none" ? null : Number(goalVal) || 20;
     return {
       filter: $("streamFilterMode").value,
       topic: $("streamTopicFilter").value,
       randomizeQuestions: true,
       randomizeOptions: $("streamRandOpt").checked,
       reviewEnabled: $("streamReview").checked,
+      sessionGoal,
       count: "all",
     };
+  }
+
+  function setStreamActive(on) {
+    document.body.classList.toggle("stream-active", !!on);
   }
 
   function hideAllViews() {
     ["setup", "exam", "review", "results", "stream", "streamSummary"].forEach((id) => {
       $(id).classList.add("hidden");
     });
+    closeStreamSheets();
   }
 
   function showSetup() {
     hideAllViews();
+    setStreamActive(false);
     $("setup").classList.remove("hidden");
-    $("appTitle").textContent = "HCIA Storage Practice Exam";
+    $("appTitle").textContent = "HCIA Storage";
     $("topMeta").classList.remove("hidden");
-    $("streamTopMeta").classList.add("hidden");
     $("progressTrack").classList.remove("hidden");
     $("qPos").textContent = "—";
     $("timer").textContent = "—";
@@ -1311,10 +2073,40 @@ const StreamEngine = (() => {
   function refreshResumeButtons() {
     const s = StorageAPI.get().lastSession;
     $("resumeBtn").disabled = !(s && !s.finished && s.questions?.length);
+
     const stream = StorageAPI.getStreamSession();
+    if (stream) StreamEngine.normalizeSession(stream);
     const canResume = !!(stream && stream.active && !stream.ended);
-    $("resumeStreamBtn").disabled = !canResume;
-    $("resumeStreamBtn").textContent = canResume ? "Continuar esteira" : "Continuar esteira";
+
+    const resumeCard = $("streamResumeCard");
+    const newSetup = $("streamNewSetup");
+    const resumeBtn = $("resumeStreamBtn");
+    const resumeSecondary = $("resumeStreamBtnSecondary");
+    const startAlt = $("startStreamBtnAlt");
+
+    if (resumeCard) {
+      resumeCard.classList.toggle("hidden", !canResume);
+    }
+    if (newSetup) {
+      // Quando há sessão, ainda mostramos setup abaixo, mas com hierarquia clara
+      newSetup.classList.toggle("dimmed", false);
+    }
+    if (resumeBtn) resumeBtn.disabled = !canResume;
+    if (resumeSecondary) {
+      resumeSecondary.classList.toggle("hidden", !canResume);
+      resumeSecondary.disabled = !canResume;
+    }
+    if (startAlt) startAlt.classList.toggle("hidden", !canResume);
+
+    if (canResume && $("streamResumeStats")) {
+      const acc = StreamEngine.formatAccuracy(StreamEngine.accuracyOf(stream));
+      $("streamResumeStats").innerHTML = `
+        <div><strong>${stream.totalAnswers || 0}</strong> respondidas</div>
+        <div><strong>${acc}%</strong> precisão</div>
+        <div>Sequência atual: <strong>${stream.currentStreak || 0}</strong></div>
+        <div>XP: <strong>${stream.xp || 0}</strong></div>
+      `;
+    }
   }
 
   function startExam(cfg, resume) {
@@ -1322,6 +2114,7 @@ const StreamEngine = (() => {
     state.mode = cfg.mode;
     state.uiMode = cfg.mode === "study" ? "study" : "exam";
     state.finished = false;
+    setStreamActive(false);
     if (!resume) {
       const store = StorageAPI.get();
       let list = ExamEngine.filterQuestions(state.all, cfg, store);
@@ -1339,9 +2132,8 @@ const StreamEngine = (() => {
     hideAllViews();
     $("exam").classList.remove("hidden");
     $("appTitle").textContent =
-      cfg.mode === "study" ? "HCIA Storage — Study Mode" : "HCIA Storage — Exam Mode";
+      cfg.mode === "study" ? "HCIA Storage — Modo estudo" : "HCIA Storage — Simulado";
     $("topMeta").classList.remove("hidden");
-    $("streamTopMeta").classList.add("hidden");
     $("progressTrack").classList.remove("hidden");
     renderNav();
     renderQuestion();
@@ -1413,7 +2205,7 @@ const StreamEngine = (() => {
   function renderQuestion() {
     const q = currentQ();
     const total = state.questions.length;
-    $("qPos").textContent = `Question ${state.index + 1} of ${total}`;
+    $("qPos").textContent = `Questão ${state.index + 1} de ${total}`;
     $("progressFill").style.width = `${((state.index + 1) / total) * 100}%`;
     $("markReview").checked = !!state.marked[state.index];
     $("questionText").textContent = q.question_original || "";
@@ -1464,7 +2256,7 @@ const StreamEngine = (() => {
     });
 
     $("prevBtn").disabled = state.index === 0;
-    $("nextBtn").textContent = state.index === total - 1 ? "Review" : "Next";
+    $("nextBtn").textContent = state.index === total - 1 ? "Revisão" : "Próxima";
     $("studyFeedback").classList.add("hidden");
     if (state.mode === "study" && (state.answers[state.index] || []).length) showStudyFeedback();
   }
@@ -1519,17 +2311,17 @@ const StreamEngine = (() => {
     $("results").classList.add("hidden");
     $("review").classList.remove("hidden");
     const list = $("reviewList");
-    list.innerHTML = "<h2>Review before submit</h2>";
+    list.innerHTML = "<h2>Revisão antes de enviar</h2>";
     state.questions.forEach((q, i) => {
       const div = document.createElement("div");
       div.className = "review-item";
       const ans = state.answers[i] || [];
-      div.innerHTML = `<h4>Question ${i + 1}${state.marked[i] ? " · Marked" : ""}</h4>
+      div.innerHTML = `<h4>Questão ${i + 1}${state.marked[i] ? " · Marcada" : ""}</h4>
         <div>${escapeHtml((q.question_original || "").slice(0, 180))}${(q.question_original || "").length > 180 ? "…" : ""}</div>
         <div>Respondida: ${ans.length ? ans.join(", ") : "Não"}</div>`;
       const btn = document.createElement("button");
       btn.className = "btn";
-      btn.textContent = "Go to question";
+      btn.textContent = "Ir para a questão";
       btn.onclick = () => {
         $("review").classList.add("hidden");
         $("exam").classList.remove("hidden");
@@ -1545,14 +2337,14 @@ const StreamEngine = (() => {
     actions.innerHTML = "";
     const back = document.createElement("button");
     back.className = "btn";
-    back.textContent = "Back to exam";
+    back.textContent = "Voltar ao simulado";
     back.onclick = () => {
       $("review").classList.add("hidden");
       $("exam").classList.remove("hidden");
     };
     const submit = document.createElement("button");
     submit.className = "btn btn-primary";
-    submit.textContent = "Submit exam";
+    submit.textContent = "Enviar prova";
     submit.onclick = () => finishExam(false);
     actions.appendChild(back);
     actions.appendChild(submit);
@@ -1600,7 +2392,7 @@ const StreamEngine = (() => {
         <div class="stat"><div class="v">${grade.wrong}</div><div class="l">Erros</div></div>
         <div class="stat"><div class="v">${grade.unanswered}</div><div class="l">Não respondidas (com gabarito)</div></div>
         <div class="stat"><div class="v">${grade.unscored}</div><div class="l">Sem gabarito (não pontuadas)</div></div>
-        <div class="stat"><div class="v">${mins}:${String(secs).padStart(2,"0")}</div><div class="l">Tempo utilizado</div></div>
+        <div class="stat"><div class="v">${mins}:${String(secs).padStart(2, "0")}</div><div class="l">Tempo utilizado</div></div>
       </div>
       <p>${passMsg}</p>
       <p>Marcadas para revisão: ${Object.values(state.marked).filter(Boolean).length}</p>
@@ -1642,8 +2434,10 @@ const StreamEngine = (() => {
   }
 
   function startContinuousMode(resumeSession) {
+    closeStreamSheets();
+    state.lastStreamResult = null;
     if (resumeSession) {
-      state.stream = resumeSession;
+      state.stream = StreamEngine.normalizeSession(resumeSession);
       StreamEngine.restoreCurrent(state.stream, state.all);
       if (!state.stream.current || !state.stream.current.prepared) {
         const cur = StreamEngine.advanceToNextQuestion(state.stream, state.all);
@@ -1672,33 +2466,65 @@ const StreamEngine = (() => {
       ? [...(state.stream.current.selected || [])]
       : [];
     hideAllViews();
+    setStreamActive(true);
     $("stream").classList.remove("hidden");
-    $("appTitle").textContent = "HCIA Storage — Esteira de Perguntas";
-    $("topMeta").classList.add("hidden");
-    $("streamTopMeta").classList.remove("hidden");
-    $("progressTrack").classList.add("hidden");
     renderStreamQuestion();
     persistStream();
+  }
+
+  function statsRowsHtml(s) {
+    const acc = StreamEngine.formatAccuracy(StreamEngine.accuracyOf(s));
+    const goal = StreamEngine.goalProgress(s);
+    const goalLine = goal
+      ? `<div class="row"><span>Meta da sessão</span><strong>${goal.current} / ${goal.goal}${goal.reached ? " ✓" : ""}</strong></div>`
+      : `<div class="row"><span>Meta da sessão</span><strong>Sem meta</strong></div>`;
+    return `
+      <div class="row"><span>Precisão</span><strong>${acc}%</strong></div>
+      <div class="row"><span>Respondidas</span><strong>${s.totalAnswers}</strong></div>
+      <div class="row"><span>Acertos</span><strong>${s.correctAnswers}</strong></div>
+      <div class="row"><span>Erros</span><strong>${s.incorrectAnswers}</strong></div>
+      <div class="row"><span>Sequência atual</span><strong>${s.currentStreak || 0}</strong></div>
+      <div class="row"><span>Melhor sequência</span><strong>${s.bestStreak || 0}</strong></div>
+      <div class="row"><span>Questões únicas</span><strong>${StreamEngine.uniqueCount(s)}</strong></div>
+      <div class="row"><span>Revisões realizadas</span><strong>${s.reviewsCompleted || 0}</strong></div>
+      <div class="row"><span>Revisões pendentes</span><strong>${StreamEngine.pendingReviews(s)}</strong></div>
+      <div class="row"><span>XP da sessão</span><strong>${s.xp || 0}</strong></div>
+      ${goalLine}
+    `;
   }
 
   function updateStreamStatsUi() {
     const s = state.stream;
     if (!s) return;
+    StreamEngine.normalizeSession(s);
     const acc = StreamEngine.formatAccuracy(StreamEngine.accuracyOf(s));
-    $("streamAcc").textContent = `Precisão ${acc}%`;
-    $("streamAnswered").textContent = `Respondidas ${s.totalAnswers}`;
-    $("streamOk").textContent = `✓ ${s.correctAnswers}`;
-    $("streamBad").textContent = `✕ ${s.incorrectAnswers}`;
-    $("streamSideStats").innerHTML = `
-      <div class="row"><span>Precisão</span><strong>${acc}%</strong></div>
-      <div class="row"><span>Respondidas</span><strong>${s.totalAnswers}</strong></div>
-      <div class="row"><span>Corretas</span><strong>${s.correctAnswers}</strong></div>
-      <div class="row"><span>Erradas</span><strong>${s.incorrectAnswers}</strong></div>
-      <div class="row"><span>Únicas vistas</span><strong>${StreamEngine.uniqueCount(s)}</strong></div>
-      <div class="row"><span>Revisões feitas</span><strong>${s.reviewsCompleted || 0}</strong></div>
-      <div class="row"><span>Revisões pendentes</span><strong>${StreamEngine.pendingReviews(s)}</strong></div>
-      <div class="row"><span>Sequência atual</span><strong>${s.currentStreak || 0}</strong></div>
-    `;
+    $("streamAcc").textContent = `${acc}%`;
+    $("streamStreak").textContent = `Seq. ${s.currentStreak || 0}`;
+
+    const pending = StreamEngine.pendingReviews(s);
+    const chip = $("streamPendingChip");
+    if (pending > 0) {
+      chip.classList.remove("hidden");
+      chip.textContent = `${pending} revisão${pending === 1 ? "" : "ões"} pendente${pending === 1 ? "" : "s"}`;
+    } else {
+      chip.classList.add("hidden");
+      chip.textContent = "";
+    }
+
+    const goal = StreamEngine.goalProgress(s);
+    const goalBar = $("streamGoalBar");
+    if (!goal) {
+      goalBar.classList.add("hidden");
+    } else {
+      goalBar.classList.remove("hidden");
+      goalBar.classList.toggle("reached", goal.reached);
+      $("streamGoalText").textContent = goal.reached
+        ? `Meta alcançada · ${goal.current}/${goal.goal}`
+        : `${goal.current} / ${goal.goal}`;
+      $("streamGoalFill").style.width = `${goal.pct}%`;
+    }
+
+    $("streamSideStats").innerHTML = statsRowsHtml(s);
   }
 
   function renderStreamQuestion() {
@@ -1709,7 +2535,14 @@ const StreamEngine = (() => {
     const answered = !!cur.answered;
 
     $("streamQNum").textContent = `Questão ${cur.attemptNumber}`;
-    $("streamReviewBadge").classList.toggle("hidden", !cur.isReview);
+    const badge = $("streamReviewBadge");
+    if (cur.isReview) {
+      badge.classList.remove("hidden");
+      badge.textContent = "REVISÃO · você errou anteriormente";
+    } else {
+      badge.classList.add("hidden");
+    }
+
     $("streamQuestionText").textContent = q.question_original || "";
 
     const media = $("streamMedia");
@@ -1721,10 +2554,14 @@ const StreamEngine = (() => {
       media.appendChild(img);
     }
 
+    const multi = q.type === "multiple_choice";
+    $("streamMultiHint").classList.toggle("hidden", !multi || answered);
+
     const selected = new Set(answered ? cur.selected || [] : state.streamSelected || []);
     const box = $("streamOptions");
     box.innerHTML = "";
-    const multi = q.type === "multiple_choice";
+    box.className = "options stream-options" + (multi ? " multi" : "");
+
     (q.options || []).forEach((opt) => {
       const label = document.createElement("label");
       let cls = "option";
@@ -1736,6 +2573,7 @@ const StreamEngine = (() => {
         else if (selected.has(opt.id)) cls += " wrong-flag";
       }
       label.className = cls;
+
       const input = document.createElement("input");
       input.type = multi ? "checkbox" : "radio";
       input.name = "streamOpt";
@@ -1754,25 +2592,41 @@ const StreamEngine = (() => {
         }
         renderStreamQuestion();
       };
+
       const oid = document.createElement("span");
       oid.className = "oid";
-      oid.textContent = opt.id + ".";
+      oid.textContent = String(opt.id).replace(/\.$/, "");
+
       const txt = document.createElement("span");
+      txt.className = "opt-text";
       txt.textContent = opt.text;
+
+      const mark = document.createElement("span");
+      mark.className = "opt-mark";
+      mark.setAttribute("aria-hidden", "true");
+      if (answered) {
+        const correctSet = new Set(q.correct_answers || []);
+        if (correctSet.has(opt.id)) mark.textContent = "✓";
+        else if (selected.has(opt.id)) mark.textContent = "✕";
+      }
+
       label.appendChild(input);
       label.appendChild(oid);
       label.appendChild(txt);
+      label.appendChild(mark);
       box.appendChild(label);
     });
 
     const fb = $("streamFeedback");
     if (answered) {
-      showStreamFeedback(cur.correct, cur.selected || [], q);
+      showStreamFeedback(state.lastStreamResult, cur, q);
       $("streamConfirmBtn").classList.add("hidden");
       $("streamNextBtn").classList.remove("hidden");
     } else {
       fb.classList.add("hidden");
       fb.innerHTML = "";
+      fb.className = "stream-feedback hidden";
+      $("streamToastHost").innerHTML = "";
       $("streamConfirmBtn").classList.remove("hidden");
       $("streamConfirmBtn").disabled = !(state.streamSelected || []).length;
       $("streamNextBtn").classList.add("hidden");
@@ -1780,22 +2634,58 @@ const StreamEngine = (() => {
     updateStreamStatsUi();
   }
 
-  function showStreamFeedback(ok, selected, q) {
+  function showStreamFeedback(result, cur, q) {
     const box = $("streamFeedback");
+    const ok = result ? result.ok : !!cur.correct;
+    const selected = result?.selected || cur.selected || [];
+    const reviewRecovered = !!(result && result.reviewRecovered);
+    const scheduledReview = !!(result && result.scheduledReview);
+    const xpGained = result?.xpGained || 0;
+    const streak = result?.currentStreak ?? state.stream?.currentStreak ?? 0;
+
     box.classList.remove("hidden");
-    if (ok) {
-      box.innerHTML = `
-        <div class="ok">Correto</div>
-        ${explanationHtml(q)}
-      `;
-      return;
+    box.className = "stream-feedback " + (reviewRecovered ? "recovered" : ok ? "ok" : "bad");
+
+    let html = "";
+    if (reviewRecovered) {
+      html += `<div class="fb-title">✓ Questão recuperada</div>`;
+      html += `<div class="fb-line">Você corrigiu um erro anterior.</div>`;
+      if (xpGained) html += `<div class="fb-xp">+${xpGained} XP</div>`;
+    } else if (ok) {
+      html += `<div class="fb-title">✓ Correto</div>`;
+      html += `<div class="fb-line">Sequência: ${streak}</div>`;
+      if (xpGained) html += `<div class="fb-xp">+${xpGained} XP</div>`;
+    } else {
+      html += `<div class="fb-title">✕ Incorreto</div>`;
+      html += `<div class="fb-line">Você marcou: ${selected.join(", ") || "—"}</div>`;
+      html += `<div class="fb-line">Correta: ${(q.correct_answers || []).join(", ") || "—"}</div>`;
+      if (scheduledReview || (!result && state.stream?.config?.reviewEnabled)) {
+        html += `<div class="fb-review-note">↻ Esta questão voltará para revisão.</div>`;
+      }
     }
-    box.innerHTML = `
-      <div class="bad">Incorreto</div>
-      <div>Sua resposta: ${selected.join(", ") || "—"}</div>
-      <div>Resposta correta: ${(q.correct_answers || []).join(", ") || "—"}</div>
-      ${explanationHtml(q)}
-    `;
+
+    const expl = explanationHtml(q);
+    if (expl) html += `<div class="fb-explain">${expl}</div>`;
+    box.innerHTML = html;
+
+    const host = $("streamToastHost");
+    host.innerHTML = "";
+    if (result?.streakMilestone) {
+      const t = document.createElement("div");
+      t.className = "stream-toast streak";
+      t.textContent = `Sequência ${result.streakMilestone}! Bônus de XP`;
+      host.appendChild(t);
+      const streakEl = $("streamStreak");
+      streakEl.classList.remove("pulse");
+      void streakEl.offsetWidth;
+      streakEl.classList.add("pulse");
+    }
+    if (result?.goalJustReached) {
+      const t = document.createElement("div");
+      t.className = "stream-toast goal";
+      t.textContent = "Meta alcançada — continue treinando!";
+      host.appendChild(t);
+    }
   }
 
   function submitStreamAnswer() {
@@ -1808,15 +2698,24 @@ const StreamEngine = (() => {
     }
     const result = StreamEngine.submitStreamAnswer(s, selected);
     if (result.error) return;
+    state.lastStreamResult = result;
     StorageAPI.recordQuestionResult(s.current.questionId, result.ok);
     persistStream();
     renderStreamQuestion();
+    const scroll = $("streamScroll");
+    if (scroll) {
+      requestAnimationFrame(() => {
+        const fb = $("streamFeedback");
+        if (fb) fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    }
   }
 
   function goNextStreamQuestion() {
     const s = state.stream;
     if (!s?.current?.answered) return;
     state.streamSelected = [];
+    state.lastStreamResult = null;
     const cur = StreamEngine.advanceToNextQuestion(s, state.all);
     if (!cur) {
       alert("Não há questões disponíveis no pool.");
@@ -1824,6 +2723,31 @@ const StreamEngine = (() => {
     }
     persistStream();
     renderStreamQuestion();
+    const scroll = $("streamScroll");
+    if (scroll) scroll.scrollTop = 0;
+  }
+
+  function closeStreamSheets() {
+    ["streamMenuBackdrop", "streamMenuSheet", "streamStatsBackdrop", "streamStatsSheet"].forEach((id) => {
+      const el = $(id);
+      if (el) el.classList.add("hidden");
+    });
+    const menuBtn = $("streamMenuBtn");
+    if (menuBtn) menuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function openStreamMenu() {
+    closeStreamSheets();
+    $("streamMenuBackdrop").classList.remove("hidden");
+    $("streamMenuSheet").classList.remove("hidden");
+    $("streamMenuBtn").setAttribute("aria-expanded", "true");
+  }
+
+  function openStreamStats() {
+    closeStreamSheets();
+    if (state.stream) $("streamSideStats").innerHTML = statsRowsHtml(state.stream);
+    $("streamStatsBackdrop").classList.remove("hidden");
+    $("streamStatsSheet").classList.remove("hidden");
   }
 
   function leaveStreamToMenu() {
@@ -1835,6 +2759,7 @@ const StreamEngine = (() => {
 
   function endStreamSession() {
     if (!state.stream) return;
+    closeStreamSheets();
     if (!confirm("Encerrar a sessão da Esteira e ver o resumo?")) return;
     const summary = StreamEngine.endSession(state.stream);
     StorageAPI.pushHistory({
@@ -1853,21 +2778,24 @@ const StreamEngine = (() => {
     });
     StorageAPI.clearStreamSession();
     state.stream = null;
+    state.lastStreamResult = null;
     hideAllViews();
+    setStreamActive(false);
     $("streamSummary").classList.remove("hidden");
-    $("appTitle").textContent = "HCIA Storage — Esteira de Perguntas";
+    $("appTitle").textContent = "HCIA Storage — Esteira";
     $("topMeta").classList.add("hidden");
-    $("streamTopMeta").classList.add("hidden");
     $("progressTrack").classList.add("hidden");
     $("streamSummaryBody").innerHTML = `
       <h2>Sessão da Esteira</h2>
       <div class="stats-grid">
         <div class="stat"><div class="v">${summary.accuracyLabel}%</div><div class="l">Precisão</div></div>
         <div class="stat"><div class="v">${summary.totalAnswers}</div><div class="l">Respondidas</div></div>
-        <div class="stat"><div class="v">${summary.correctAnswers}</div><div class="l">Corretas</div></div>
-        <div class="stat"><div class="v">${summary.incorrectAnswers}</div><div class="l">Erradas</div></div>
-        <div class="stat"><div class="v">${summary.uniqueQuestionsSeen}</div><div class="l">Questões únicas vistas</div></div>
-        <div class="stat"><div class="v">${summary.reviewsCompleted}</div><div class="l">Revisões realizadas</div></div>
+        <div class="stat"><div class="v">${summary.correctAnswers}</div><div class="l">Acertos</div></div>
+        <div class="stat"><div class="v">${summary.incorrectAnswers}</div><div class="l">Erros</div></div>
+        <div class="stat"><div class="v">${summary.uniqueQuestionsSeen}</div><div class="l">Questões únicas</div></div>
+        <div class="stat"><div class="v">${summary.reviewsCompleted}</div><div class="l">Revisões feitas</div></div>
+        <div class="stat"><div class="v">${summary.bestStreak || 0}</div><div class="l">Melhor sequência</div></div>
+        <div class="stat"><div class="v">${summary.xp || 0}</div><div class="l">XP da sessão</div></div>
       </div>
       <p>Revisões pendentes ao encerrar: ${summary.reviewsPending}</p>
     `;
@@ -1946,14 +2874,16 @@ const StreamEngine = (() => {
     };
     $("streamFilterMode").onchange = () => {
       $("streamTopicFilter").classList.toggle("hidden", $("streamFilterMode").value !== "topic");
+      updateStreamPoolHint();
     };
+    $("streamTopicFilter").onchange = () => updateStreamPoolHint();
+    $("streamReview").onchange = () => updateStreamPoolHint();
     $("newExamBtn").onclick = () => {
       showSetup();
       setUiMode(state.uiMode === "study" ? "study" : "exam");
     };
 
-    $("startStreamBtn").onclick = confirmNewStream;
-    $("resumeStreamBtn").onclick = () => {
+    const resumeExisting = () => {
       const s = StorageAPI.getStreamSession();
       if (!s || !s.active || s.ended) {
         alert("Não há esteira ativa para continuar.");
@@ -1961,10 +2891,35 @@ const StreamEngine = (() => {
       }
       startContinuousMode(s);
     };
+
+    $("startStreamBtn").onclick = confirmNewStream;
+    if ($("startStreamBtnAlt")) $("startStreamBtnAlt").onclick = confirmNewStream;
+    $("resumeStreamBtn").onclick = resumeExisting;
+    if ($("resumeStreamBtnSecondary")) $("resumeStreamBtnSecondary").onclick = resumeExisting;
+
     $("streamConfirmBtn").onclick = submitStreamAnswer;
     $("streamNextBtn").onclick = goNextStreamQuestion;
-    $("streamMenuBtn").onclick = leaveStreamToMenu;
+
+    $("streamMenuBtn").onclick = () => {
+      const open = !$("streamMenuSheet").classList.contains("hidden");
+      if (open) closeStreamSheets();
+      else openStreamMenu();
+    };
+    $("streamMenuBackdrop").onclick = closeStreamSheets;
+    $("streamMenuCloseBtn").onclick = closeStreamSheets;
+    $("streamContinueLaterBtn").onclick = () => {
+      closeStreamSheets();
+      leaveStreamToMenu();
+    };
+    $("streamSettingsHintBtn").onclick = () => {
+      closeStreamSheets();
+      leaveStreamToMenu();
+    };
+    $("streamStatsBtn").onclick = () => openStreamStats();
+    $("streamStatsBackdrop").onclick = closeStreamSheets;
+    $("streamStatsCloseBtn").onclick = closeStreamSheets;
     $("streamEndBtn").onclick = endStreamSession;
+
     $("streamBackMenuBtn").onclick = () => {
       showSetup();
       setUiMode("question_stream");
@@ -1980,6 +2935,10 @@ const StreamEngine = (() => {
       $("filterMode").value = "missed";
       $("topicFilter").classList.add("hidden");
     };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeStreamSheets();
+    });
   }
 
   async function init() {

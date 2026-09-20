@@ -231,13 +231,15 @@ button { cursor: pointer; }
 }
 .bank-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  max-width: 360px;
 }
 .bank-stat {
   background: #f7f9fb;
   border: 1px solid var(--border);
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
 }
 .bank-stat .v {
   font-size: 1.25rem;
@@ -1670,16 +1672,14 @@ body.stream-active #globalFootnote {
         </button>
       </div>
 
-      <div class="panel-card">
-        <h2>Banco de questões</h2>
-        <div class="bank-stats" id="bankStats">
-          <div class="bank-stat"><div class="v" id="statTotal">—</div><div class="l">catalogadas</div></div>
-          <div class="bank-stat"><div class="v" id="statScored">—</div><div class="l">com gabarito</div></div>
-          <div class="bank-stat"><div class="v" id="statVerified">—</div><div class="l">verificadas</div></div>
-          <div class="bank-stat"><div class="v" id="statTopics">—</div><div class="l">tópicos</div></div>
+        <div class="panel-card">
+          <h2>Banco de questões</h2>
+          <div class="bank-stats" id="bankStats">
+            <div class="bank-stat"><div class="v" id="statTotal">—</div><div class="l">questões</div></div>
+            <div class="bank-stat"><div class="v" id="statTopics">—</div><div class="l">tópicos</div></div>
+          </div>
+          <p class="footnote hidden" id="poolStats"></p>
         </div>
-        <p class="footnote" id="poolStats">Carregando catálogo…</p>
-      </div>
 
       <div class="panel-card" id="historyPanel">
         <h2>Histórico</h2>
@@ -3022,12 +3022,19 @@ const StreamEngine = (() => {
     fillTopicSelect($("studyTopicFilter"));
     const s = computeBankStats();
     if ($("statTotal")) $("statTotal").textContent = String(s.total);
-    if ($("statScored")) $("statScored").textContent = String(s.scored);
-    if ($("statVerified")) $("statVerified").textContent = String(s.verified);
     if ($("statTopics")) $("statTopics").textContent = String(s.topicCount);
-    if ($("poolStats")) {
-      $("poolStats").textContent =
-        `${s.total} questões catalogadas · ${s.scored} com gabarito · ${s.verified} verificadas · ${s.topicCount} tópicos identificados`;
+    const note = $("poolStats");
+    if (note) {
+      const extras = [];
+      if (s.scored < s.total) extras.push(`${s.scored} com gabarito`);
+      if (s.verified < s.total) extras.push(`${s.verified} verificadas`);
+      if (extras.length) {
+        note.textContent = extras.join(" · ");
+        note.classList.remove("hidden");
+      } else {
+        note.textContent = "";
+        note.classList.add("hidden");
+      }
     }
     updateStreamPoolHint();
     renderHistoryPanel();

@@ -4731,7 +4731,10 @@ const StreamEngine = (() => {
         showHub();
       }
     } catch (err) {
-      if ($("poolStats")) $("poolStats").textContent = String(err.message || err);
+      if ($("poolStats")) {
+        $("poolStats").textContent = String(err.message || err);
+        $("poolStats").classList.remove("hidden");
+      }
     }
   }
 

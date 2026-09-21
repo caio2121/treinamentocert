@@ -1099,6 +1099,7 @@ body.stream-active #globalFootnote {
   white-space: nowrap;
 }
 .stream-metric-streak { color: var(--text); }
+.stream-metric-xp { color: var(--accent); }
 .stream-overflow-btn {
   width: 44px;
   height: 44px;
@@ -1976,6 +1977,7 @@ body.stream-active #globalFootnote {
         <div class="stream-brand">HCIA Storage</div>
         <div class="stream-top-metrics">
           <span id="streamAcc" class="stream-metric" title="Precisão">—%</span>
+          <span id="streamXp" class="stream-metric stream-metric-xp" title="XP da sessão">0 XP</span>
           <span id="streamStreak" class="stream-metric stream-metric-streak" title="Sequência">Seq. 0</span>
           <button type="button" class="stream-overflow-btn" id="streamMenuBtn" aria-label="Menu da sessão" aria-haspopup="true" aria-expanded="false">⋮</button>
         </div>
@@ -2519,6 +2521,23 @@ const StreamEngine = (() => {
               : 0;
       }
     }
+    // Deduplica fila antiga (uma entrada por questionId — mantém a mais cedo/due).
+    if (Array.isArray(session.reviewQueue) && session.reviewQueue.length > 1) {
+      const byId = new Map();
+      for (const r of session.reviewQueue) {
+        if (!r?.questionId) continue;
+        const prev = byId.get(r.questionId);
+        if (
+          !prev ||
+          (r.dueAtAttempt ?? Infinity) < (prev.dueAtAttempt ?? Infinity) ||
+          ((r.dueAtAttempt ?? Infinity) === (prev.dueAtAttempt ?? Infinity) &&
+            (r.scheduledAt || 0) < (prev.scheduledAt || 0))
+        ) {
+          byId.set(r.questionId, r);
+        }
+      }
+      session.reviewQueue = [...byId.values()];
+    }
     return session;
   }
 
@@ -2715,6 +2734,10 @@ const StreamEngine = (() => {
     // Após responder a tentativa N (totalAnswers já incrementado):
     // reaparece em N + distance + 1 ⇒ ~distance questões no meio.
     const dueAtAttempt = session.totalAnswers + distance + 1;
+    // Uma questão = no máximo uma entrada na fila (evita contador que não desce).
+    session.reviewQueue = (session.reviewQueue || []).filter(
+      (r) => r.questionId !== questionId
+    );
     const entry = {
       uid: `${questionId}_${session.totalAnswers}_${Date.now()}`,
       questionId,
@@ -2793,8 +2816,9 @@ const StreamEngine = (() => {
     let reviewRecovered = false;
 
     if (session.current.isReview) {
+      // Remove todas as entradas desta questão (não só o uid atual).
       session.reviewQueue = (session.reviewQueue || []).filter(
-        (r) => r.uid !== session.current.reviewUid
+        (r) => r.questionId !== id
       );
       if (ok) {
         session.reviewsCompleted += 1;
@@ -4241,6 +4265,8 @@ const StreamEngine = (() => {
     StreamEngine.normalizeSession(s);
     const acc = StreamEngine.formatAccuracy(StreamEngine.accuracyOf(s));
     $("streamAcc").textContent = `${acc}%`;
+    const xpEl = $("streamXp");
+    if (xpEl) xpEl.textContent = `${s.xp || 0} XP`;
     $("streamStreak").textContent = `Seq. ${s.currentStreak || 0}`;
 
     const pending = StreamEngine.pendingReviews(s);

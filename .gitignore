@@ -26,6 +26,10 @@ _inventory_tmp.json
 # --- Workspace do simulador (build local; site público = docs/) ---
 hcia-simulator/
 
+# --- Auditoria QA local (agentes, backups, relatórios, scripts de apply) ---
+qa/
+**/qa/
+
 # --- Dados, OCR, relatórios, scripts e artefatos de trabalho ---
 **/data/
 **/work/

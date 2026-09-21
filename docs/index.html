@@ -2348,7 +2348,7 @@ const ExamEngine = (() => {
 
     // "são A" / "correta A" / "incorreta A"
     t = t.replace(
-      /\b(são|sao|correta|corretas|incorreta|incorretas)\s+([A-E])\b/gi,
+      /\b(são|sao|correta|corretas|incorreta|incorretas|falsa|falso|verdadeira|verdadeiro)\s+([A-E])\b/gi,
       (m, word, L) => {
         const n = take(L);
         return n ? `${word} ${n}` : m;

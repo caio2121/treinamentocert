@@ -3082,16 +3082,41 @@ const StreamEngine = (() => {
     return false;
   }
 
-  function formatAnswerLabels(q, ids) {
+  function sortOptionIds(ids) {
+    return [...(ids || [])].map(String).sort((a, b) => {
+      const ua = a.toUpperCase();
+      const ub = b.toUpperCase();
+      const ra = /^[A-Z]$/.test(ua) ? ua.charCodeAt(0) : 1000;
+      const rb = /^[A-Z]$/.test(ub) ? ub.charCodeAt(0) : 1000;
+      if (ra !== rb) return ra - rb;
+      return ua.localeCompare(ub);
+    });
+  }
+
+  function formatAnswerLabels(q, ids, sep = "; ") {
     const opts = q.options || [];
-    return (ids || [])
+    return sortOptionIds(ids)
       .map((id) => {
         const opt = opts.find((o) => String(o.id) === String(id));
         if (!opt) return String(id);
         const text = String(opt.text || "").trim();
         return text ? `${id} — ${text}` : String(id);
       })
-      .join("; ");
+      .join(sep);
+  }
+
+  function formatAnswerLetters(ids) {
+    const sorted = sortOptionIds(ids);
+    return sorted.length ? sorted.join(", ") : "—";
+  }
+
+  function answerDiff(selected, correct) {
+    const sel = new Set([...(selected || [])].map(String));
+    const cor = new Set([...(correct || [])].map(String));
+    return {
+      missed: sortOptionIds([...(correct || [])].filter((id) => !sel.has(String(id)))),
+      extra: sortOptionIds([...(selected || [])].filter((id) => !cor.has(String(id)))),
+    };
   }
 
   function explanationHtml(q) {
@@ -4456,8 +4481,22 @@ const StreamEngine = (() => {
       if (xpGained) html += `<div class="fb-xp">+${xpGained} XP</div>`;
     } else {
       html += `<div class="fb-title">✕ Incorreto</div>`;
-      html += `<div class="fb-line">Você marcou: ${formatAnswerLabels(q, selected) || "—"}</div>`;
-      html += `<div class="fb-line">Correta: ${formatAnswerLabels(q, q.correct_answers) || "—"}</div>`;
+      const multi = q.type === "multiple_choice";
+      const correctIds = q.correct_answers || [];
+      if (multi) {
+        html += `<div class="fb-line"><strong>Você marcou:</strong> ${formatAnswerLetters(selected)}</div>`;
+        html += `<div class="fb-line"><strong>Gabarito:</strong> ${formatAnswerLetters(correctIds)}</div>`;
+        const diff = answerDiff(selected, correctIds);
+        if (diff.missed.length) {
+          html += `<div class="fb-diff missed"><strong>Faltou:</strong> ${formatAnswerLabels(q, diff.missed, "<br>")}</div>`;
+        }
+        if (diff.extra.length) {
+          html += `<div class="fb-diff extra"><strong>A mais:</strong> ${formatAnswerLabels(q, diff.extra, "<br>")}</div>`;
+        }
+      } else {
+        html += `<div class="fb-line"><strong>Você marcou:</strong> ${formatAnswerLabels(q, selected) || "—"}</div>`;
+        html += `<div class="fb-line"><strong>Correta:</strong> ${formatAnswerLabels(q, correctIds) || "—"}</div>`;
+      }
       if (scheduledReview || (!result && state.stream?.config?.reviewEnabled)) {
         html += `<div class="fb-review-note">↻ Esta questão voltará para revisão.</div>`;
       }

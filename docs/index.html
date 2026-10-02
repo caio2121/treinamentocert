@@ -5032,6 +5032,7 @@ const StreamEngine = (() => {
       toast("Não há questões disponíveis no pool.", "warn");
       return;
     }
+    state.streamSelected = cur.prepared?.type === "drag_and_drop" ? {} : [];
     persistStream();
     renderStreamQuestion();
     const scroll = $("streamScroll");

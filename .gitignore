@@ -1,5 +1,5 @@
 # =============================================================================
-# GitHub Pages: publicar APENAS README + docs/*.html
+# GitHub Pages: publicar README + artefatos runtime sob docs/
 # Todo o material de estudo/fonte permanece local (nunca versionar).
 # =============================================================================
 
@@ -42,6 +42,15 @@ qa/
 !package.json
 !package-lock.json
 !tsconfig.json
+
+# Runtime media generated for the published legacy dataset. The source
+# extraction workspace and mock_v5 assets remain ignored; only this deploy
+# output is required by docs/index.html.
+!docs/assets/
+!docs/assets/questions/
+!docs/assets/questions/current/
+docs/assets/questions/current/*
+!docs/assets/questions/current/*.jpeg
 
 # Exceção: nada de JSON de questões/catálogo no remoto
 # (o banco público vai embutido em docs/index.html)
